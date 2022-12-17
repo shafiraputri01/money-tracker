@@ -1,6 +1,7 @@
 #! ../env/bin/python
 
 from flask import Flask, render_template, request, g
+from flask_cors import CORS
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
 from appname import assets
@@ -50,6 +51,7 @@ def create_app(object_name):
     """
 
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(object_name)
 
     # initialize the cache
