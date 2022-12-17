@@ -162,6 +162,9 @@ class Wallet:
 
         return old_record
 
+    def get_record(self, record_id):
+        return self.records[record_id]
+
     def get_records(self):
         return list(self.records.values())
 
@@ -186,5 +189,6 @@ class Wallet:
 
     def get_balance(self):
         return self.balance
+
 
 wallet = Wallet()

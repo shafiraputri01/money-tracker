@@ -18,6 +18,13 @@ class Record(Resource):
     schema = RecordSchema()
 
     @marshal_with(schema.record_fields)
+    def get(self):
+        data = request.get_json()
+        result = wallet.get_record(data['id'])
+
+        return result
+
+    @marshal_with(schema.record_fields)
     def post(self):
         data = request.get_json()
         result = wallet.add_record(data)
