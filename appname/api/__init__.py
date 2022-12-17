@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
+from itertools import groupby
 
 from flask_restful.representations.json import output_json
-from flask_restful import reqparse, fields, abort
+from flask_restful import reqparse
 import flask_restful as restful
 
 from appname.extensions import login_manager
@@ -89,3 +90,101 @@ class BaseAPISchema():
     def parse_args(self):
         return self.parser.parse_args()
 
+class Wallet:
+    balance = 665000
+
+    idx = 3
+
+    records = {
+        1: {
+            'id': 1,
+            'date': '2022-05-02',
+            'amount': 700000,
+            'notes': 'Monthly Income',
+            'is_income': True,
+        },
+        2: {
+            'id': 2,
+            'date': '2022-05-03',
+            'amount': 20000,
+            'notes': 'F&B',
+            'is_income': False,
+        },
+        3: {
+            'id': 3,
+            'date': '2022-05-04',
+            'amount': 15000,
+            'notes': 'Transport',
+            'is_income': False,
+        },
+    }
+
+    def add_record(self, record_data):
+        self.idx += 1
+
+        if record_data['is_income']:
+            self.balance += record_data['amount']
+        else:
+            self.balance -= record_data['amount']
+
+        record_data['id'] = self.idx
+        self.records[self.idx] = record_data
+
+        return self.records[self.idx]
+
+    def edit_record(self, record_data):
+        record_id = record_data['id']
+        old_record = self.records[record_id]
+
+        if old_record['is_income']:
+            self.balance -= old_record['amount']
+        else:
+            self.balance += old_record['amount']
+
+        if record_data['is_income']:
+            self.balance += record_data['amount']
+        else:
+            self.balance -= record_data['amount']
+
+        self.records[record_id] = record_data
+
+        return self.records[record_id]
+
+    def delete_record(self, record_id):
+        old_record = self.records[record_id]
+
+        if old_record['is_income']:
+            self.balance -= old_record['amount']
+        else:
+            self.balance += old_record['amount']
+
+        del self.records[record_id]
+
+        return old_record
+
+    def get_records(self):
+        return list(self.records.values())
+
+    def get_statistic(self):
+        result = {}
+
+        for record in self.records.values():
+            try:
+                result[record['date'][0:7]]
+            except KeyError:
+                result[record['date'][0:7]] = {
+                    'month': record['date'][0:7],
+                    'income': 0,
+                    'expense': 0,
+                }
+
+            if record['is_income']:
+                result[record['date'][0:7]]['income'] += record['amount']
+            else:
+                result[record['date'][0:7]]['expense'] += record['amount']
+        return list(result.values())
+
+    def get_balance(self):
+        return self.balance
+
+wallet = Wallet()
