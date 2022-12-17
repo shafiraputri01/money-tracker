@@ -19,8 +19,8 @@ class Record(Resource):
 
     @marshal_with(schema.record_fields)
     def get(self):
-        data = request.get_json()
-        result = wallet.get_record(data['id'])
+        data = request.args.to_dict()
+        result = wallet.get_record(int(data['id']))
 
         return result
 
